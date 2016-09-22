@@ -18,9 +18,9 @@ class Gyroscope : protected Sensor {
     Gyroscope();
     void disable();
     void enable();
-    float getData();
+    int getData();
     boolean getStatus();
-    void printData(float heading);
+    void printData(int heading);
     
   private:
     LSM303 gyroscope;

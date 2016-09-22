@@ -34,7 +34,7 @@ void Gyroscope::enable(){
   _status = true;
 }
 
-float Gyroscope::getData(){
+int Gyroscope::getData(){
   /*
   Returns the angular difference in the horizontal plane between the
   "from" vector and north, in degrees.
@@ -48,9 +48,9 @@ float Gyroscope::getData(){
   into the horizontal plane and the angle between the projected vector
   and horizontal north is returned.
 */
-  float data;
+  int data;
   gyroscope.read();
-  data = gyroscope.heading();
+  data = (int)gyroscope.heading();
   return data;
 }
 
@@ -59,7 +59,7 @@ bool Gyroscope::getStatus(){
   return _status;
 }
 
-void Gyroscope::printData(float heading){
+void Gyroscope::printData(int heading){
   
   Serial.print("Heading: ");
   Serial.println(heading);
