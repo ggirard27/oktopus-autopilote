@@ -46,7 +46,7 @@ bool RudderServo::getStatus(){
 int RudderServo::_mapRudderServoPositionToAngle(int position){
   
   int angle;
-  if (pos < 19){
+  if (position < 19){
     angle = -(2.158 * position);
   } else {
     angle = -(1.464 * position);
