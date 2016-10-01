@@ -10,29 +10,9 @@
 
 #include "Adafruit_GPS.h"
 #include "Sensor.h"
+#include "Utils.h"
 
 #define GPSPortSerial Serial2
-
-struct NMEAData {
-  
-  short hour;
-  short minute;
-  short seconds;
-  short milliseconds;
-  short day;
-  short month;
-  short year;
-  short fix;
-  short fixquality;
-  float speed;
-  float angle;
-  float altitude;
-  float latitude;
-  char lat;
-  float longitude;
-  char lon;
-  short satellites;
-};
 
 class GPS : protected Sensor {
   
