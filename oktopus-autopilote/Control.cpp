@@ -31,7 +31,7 @@ double Control::control_angle(double setpoint){
   for (short i = 0; i < 2; i ++) {
     theta[i] = theta[i+1];
     safran[i] = safran[i+1];
-    actuator[i] =  actuator[i+];
+    actuator[i] =  actuator[i+1];
     wave[i] = wave[i+1];
   }
   
@@ -44,5 +44,45 @@ double Control::control_angle(double setpoint){
     controlled_angle = -41;
   }  
   return controlled_angle;
- } 
+}
+
+double Control::compute_theta(NMEAData current, NMEAData next, double heading)
+{
+    double position_angle = 0.00;
+    double theta_angle = 0.00;
+
+    NMEAData *delta = new NMEAData();
+    
+    delta->longitude = next.longitude - current.longitude;
+    delta->latitude = next.latitude - current.latitude;
+    
+    if (delta->latitude > 0 && delta->longitude >= 0)
+    {
+        position_angle = 90 - ((180 / M_PI) * atan(delta->latitude / delta->longitude));
+    }
+    else if (delta->latitude <= 0 && delta->longitude > 0)
+    {
+        position_angle = 90 + ((180 / M_PI) * atan(fabs(delta->latitude) / delta->longitude));
+    }
+    else if (delta->latitude < 0 && delta->longitude <= 0)
+    {
+        position_angle = 270 - ((180 / M_PI) * atan(delta->latitude / delta->longitude));
+    }
+    else if (delta->latitude >= 0 && delta->longitude < 0)
+    {
+        position_angle = 360 - (90 - ((180 / M_PI) * atan(delta->latitude / fabs(delta->longitude))));
+    }
+
+    theta_angle = position_angle - heading;
+    if (theta_angle >= 180)
+    {
+        theta_angle -= 360;
+    }
+    else if (theta_angle <180)
+    {
+        theta_angle += 360;
+    }
+
+    return theta_angle;
+}
 

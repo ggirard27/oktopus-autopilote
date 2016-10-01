@@ -9,6 +9,9 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
+#include "Utils.h"
+#include <math.h>
+
 #define KP 0.218126115460278
 #define KI 0.00121153031346156
 #define KD 0.11698288703492
@@ -23,6 +26,7 @@ class Control {
     double actuator[50];
     double wave[50];
     double control_angle(double setpoint);
+    double compute_theta(NMEAData current, NMEAData next, double heading);
   
 };
 #endif
