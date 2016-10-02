@@ -21,20 +21,28 @@ void Gyroscope::disable(){
 void Gyroscope::enable(){
 
   Wire.begin();
-  gyroscope.init();
-  gyroscope.enableDefault();
+  accelerometer.init();
+  accelerometer.enableDefault();
   /*
   Calibration values; the default values of +/-32767 for each axis
   lead to an assumed magnetometer bias of 0. Use the Calibrate example
   program to determine appropriate values for your particular unit.
   */
-  gyroscope.m_min = (LSM303::vector<int16_t>){-32767, -32767, -32767};
-  gyroscope.m_max = (LSM303::vector<int16_t>){+32767, +32767, +32767};
+  accelerometer.m_min = (LSM303::vector<int16_t>){-5041, -4452, -4291};
+  accelerometer.m_max = (LSM303::vector<int16_t>){+3370, +3675, +3531};
+  if (!gyroscope.init())
+  {
+    Serial.println("Failed to autodetect gyro type!");
+    while (1);
+  }
+  gyroscope.enableDefault();
+  
   if (VERBOSE) Serial.println("Gyroscope enabled.");
   _status = true;
 }
 
-int Gyroscope::getData(){
+int Gyroscope::getData(int chip){
+  int data;
   /*
   Returns the angular difference in the horizontal plane between the
   "from" vector and north, in degrees.
@@ -48,9 +56,18 @@ int Gyroscope::getData(){
   into the horizontal plane and the angle between the projected vector
   and horizontal north is returned.
 */
-  int data;
-  gyroscope.read();
-  data = (int)gyroscope.heading();
+  switch (chip) {
+    case LSM_303:
+      accelerometer.read();
+      data = (int)accelerometer.heading();
+      break;
+    case L3G_20H:
+      gyroscope.read();
+      data = gyroscope.g.z;
+      break;
+    default:
+      break;
+  }
   return data;
 }
 

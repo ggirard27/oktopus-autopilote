@@ -9,8 +9,12 @@
 #define GYROSCOPE_H
 
 #include "LSM303.h"
+#include "L3G.h"
 #include "Sensor.h"
 #include <Wire.h>
+
+#define LSM_303 0
+#define L3G_20H 1
 
 class Gyroscope : protected Sensor {
   
@@ -18,11 +22,12 @@ class Gyroscope : protected Sensor {
     Gyroscope();
     void disable();
     void enable();
-    int getData();
+    int getData(int chip);
     boolean getStatus();
     void printData(int heading);
     
   private:
-    LSM303 gyroscope;
+    LSM303 accelerometer;
+    L3G gyroscope;
 };
 #endif
