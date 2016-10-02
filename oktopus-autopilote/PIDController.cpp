@@ -5,48 +5,48 @@
 // Revision: v0.0.1
 // Licence: Apache License Version 2.0, January 2004 http://www.apache.org/licenses/
 
-#include "Control.h"
+#include "PIDController.h"
 
-Control::Control(){
-  for (short i = 0; i < 2; i ++) {
+PIDController::PIDController(){
+  for (short i = 0; i < 3; i ++) {
     theta[i] = 0;
-    safran[i] = 0;
+    rudder[i] = 0;
     actuator[i] = 0;
     wave[i] = 0;
   }
 }
 
-double Control::control_angle(double setpoint){
+double PIDController::control_rudder(double setpoint){
   
-  double controlled_angle = 0;
+  double controlled_rudder = 0;
   
-  safran[2] = KP*theta[2] - KP*theta[1] + KI*TS*theta[1] + (KD*theta[2]/TS) - ((2*KD*theta[1])/TS) + ((KD*theta[0])/TS) + safran[1];
+  rudder[2] = KP*theta[2] - KP*theta[1] + KI*TS*theta[1] + (KD*theta[2]/TS) - ((2*KD*theta[1])/TS) + ((KD*theta[0])/TS) + rudder[1];
   
-  actuator[2] = safran[1] + actuator[1]*0.0000457;
+  actuator[2] = rudder[1] + actuator[1]*0.0000457;
 
-  controlled_angle = actuator[2];
+  controlled_rudder = actuator[2];
   
   wave[2] = actuator[1]*0.6198 + actuator[0]*0.425 + wave[1]*1.3212 - wave[0]*0.321;
   
   for (short i = 0; i < 2; i ++) {
     theta[i] = theta[i+1];
-    safran[i] = safran[i+1];
+    rudder[i] = rudder[i+1];
     actuator[i] =  actuator[i+1];
     wave[i] = wave[i+1];
   }
   
   theta[2] = setpoint - wave[2];
   
-  if (controlled_angle > 41){
-    controlled_angle = 41;
+  if (controlled_rudder > 41){
+    controlled_rudder = 41;
   }
-  if (controlled_angle < -41){
-    controlled_angle = -41;
+  if (controlled_rudder < -41){
+    controlled_rudder = -41;
   }  
-  return controlled_angle;
+  return controlled_rudder;
 }
 
-double Control::compute_theta(NMEAData current, NMEAData next, double heading)
+double PIDController::compute_theta(NMEAData current, NMEAData next, double heading)
 {
     double position_angle = 0.00;
     double theta_angle = 0.00;
@@ -78,7 +78,7 @@ double Control::compute_theta(NMEAData current, NMEAData next, double heading)
     {
         theta_angle -= 360;
     }
-    else if (theta_angle <180)
+    else if (theta_angle < -180)
     {
         theta_angle += 360;
     }

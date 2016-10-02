@@ -6,8 +6,8 @@
 // Licence: Apache License Version 2.0, January 2004 http://www.apache.org/licenses/
 
 
-#ifndef CONTROL_H
-#define CONTROL_H
+#ifndef PIDCONTROLLER_H
+#define PIDCONTROLLER_H
 
 #include "Utils.h"
 #include <math.h>
@@ -17,15 +17,15 @@
 #define KD 0.11698288703492
 #define TS 1
 
-class Control {
+class PIDController {
   
   public: 
-    Control();
+    PIDController();
     double theta[50];
-    double safran[50];
+    double rudder[50];
     double actuator[50];
     double wave[50];
-    double control_angle(double setpoint);
+    double control_rudder(double setpoint);
     double compute_theta(NMEAData current, NMEAData next, double heading);
   
 };
