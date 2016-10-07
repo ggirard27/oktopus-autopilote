@@ -20,13 +20,13 @@ class RudderServo : protected Sensor {
     int getData();
     boolean getStatus();
     void printData(int angle);
-    void setAngle(int angle);
+    void setAngle(double angle);
     void setPosition(int pos);
     void sweep(int start, int middle, int fin);
     
   private:
     int _mapRudderServoPositionToAngle(int position);
-    int _mapRudderServoAngleToPosition(int angle);
+    double _mapRudderServoAngleToPosition(int angle);
     Servo servo;
     int _position;
     int _digitalPin = 2;

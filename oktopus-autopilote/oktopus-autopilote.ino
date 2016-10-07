@@ -47,12 +47,13 @@ void setup() {
   lcd.setCursor(0, 1);
   lcd.print("autopilot");
 
-  rudderServo.setAngle(-40);
+  rudderServo.setAngle(-41);
   delay(500);
   rudderServo.setAngle(0);
   delay(500);
-  rudderServo.setAngle(40);
+  rudderServo.setAngle(41);
   delay(500);
+  
 }
 
 uint32_t timer1 = millis();
@@ -62,7 +63,7 @@ double theta = 0.0;
 double rudder = 0.0;
 
 void loop() {
-  
+  esc.setSpeed(30, 0, 100);
   currentGpsData = gps.getData();
   nextGpsData.longitude = currentGpsData.longitude + 5;
   nextGpsData.latitude = currentGpsData.latitude + 5;
@@ -75,6 +76,7 @@ void loop() {
     heading = gyroscope.getData(LSM_303);
     theta = PIDController.compute_theta(currentGpsData, nextGpsData, heading);
     rudder = PIDController.control_rudder(theta);
+    rudderServo.setAngle(rudder);
     cycleDataOnLCD();
   }
   

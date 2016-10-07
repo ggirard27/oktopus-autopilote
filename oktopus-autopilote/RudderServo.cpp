@@ -54,18 +54,20 @@ int RudderServo::_mapRudderServoPositionToAngle(int position){
   return angle;
 }
 
-int RudderServo::_mapRudderServoAngleToPosition(int angle){
- 
-  int position;
+double RudderServo::_mapRudderServoAngleToPosition(int angle){
+  double position;
+  Serial.println(angle);
   if (angle < 0){
-    position = -(0.4634 * angle);
+    position = 40+((0.7317)*(angle));
+    Serial.println(position);
   } else {
-    position = -(0.6831 * angle);
+    position = 40 + ((1.34)*(angle));
+    Serial.println(position);
   }
   return position;
 }
 
-void RudderServo::setAngle(int angle){
+void RudderServo::setAngle(double angle){
   servo.write(_mapRudderServoAngleToPosition(angle));
 }
 

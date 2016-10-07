@@ -11,6 +11,7 @@
 
 #include "Utils.h"
 #include <math.h>
+#include <Arduino.h>
 
 #define KP 0.218126115460278
 #define KI 0.00121153031346156
