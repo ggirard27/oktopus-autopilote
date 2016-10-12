@@ -16,7 +16,7 @@
 #define KP 0.218126115460278
 #define KI 0.00121153031346156
 #define KD 0.11698288703492
-#define TS 1
+#define TS 0.1
 
 class PIDController {
   

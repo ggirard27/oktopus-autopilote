@@ -71,7 +71,7 @@ void loop() {
   if (timer1 > millis())  timer1 = millis();
   if (timer2 > millis())  timer2 = millis();
   
-  if (millis() - timer1 > 1000) {
+  if (millis() - timer1 > 100) {
     timer1 = millis(); // reset the time
     heading = gyroscope.getData(LSM_303);
     theta = PIDController.compute_theta(currentGpsData, nextGpsData, heading);

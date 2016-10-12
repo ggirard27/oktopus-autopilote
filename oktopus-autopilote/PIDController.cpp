@@ -21,20 +21,12 @@ double PIDController::control_rudder(double setpoint){
   double controlled_rudder = 0;
   
   rudder[2] = KP*theta[2] - KP*theta[1] + KI*TS*theta[1] + (KD*theta[2]/TS) - ((2*KD*theta[1])/TS) + ((KD*theta[0])/TS) + rudder[1];
-  
- //actuator[2] = rudder[1] + actuator[1]*0.0000457;
 
   controlled_rudder = rudder[2];
-  
- //wave[2] = actuator[1]*0.6198 + actuator[0]*0.425 + wave[1]*1.3212 - wave[0]*0.321;
-
-
-  
+   
   for (short i = 0; i < 2; i ++) {
     theta[i] = theta[i+1];
     rudder[i] = rudder[i+1];
-   // actuator[i] =  actuator[i+1];
-   // wave[i] = wave[i+1];
   }
   
   theta[2] = setpoint;
@@ -62,9 +54,9 @@ double PIDController::compute_theta(NMEAData current, NMEAData next, double head
     // delta->latitude = next.latitude - current.latitude;
     // Fin code à utiliser avec GPS
 
-// Hardcode test 1
-delta->longitude = 1;
-delta->latitude = 0;
+    // Hardcode test 1
+    delta->longitude = 1;
+    delta->latitude = 0;
 
 
     if (delta->latitude > 0 && delta->longitude >= 0)
