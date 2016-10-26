@@ -33,11 +33,14 @@ static NMEAData getGPSError(NMEAData basecampGPSData) {
 
   NMEAData errorValue;
   
-  const double latitudeDegreeToMeter = 11.1320, longitudeDegreeToMeter = 7.78165;
-  const double latitudeReference = 457460, longitudeReference = 726480;
+  const double latitudeDegreeToMeter = 111320.0, longitudeDegreeToMeter = 77816.5;
+  const double latitudeMinuteToMeter = latitudeDegreeToMeter/(double)60.0, longitudeDegreeToMeter = longitudeDegreeToMeter/(double)60.0;
+  
+  /* GPS coordinates of Lac Montjoie basecamp station minus the invariable degree part. The degrees will not change, but minutes and seconds will, so we remove the degree part */
+  const double latitudeReference = 74.60, longitudeReference = 64.80;
 
-  double latitudeError = (latitudeReference - (basecampGPSData.latitude*10000))*latitudeDegreeToMeter;
-  double longitudeError = (longitudeReference - (basecampGPSData.longitude*10000))*longitudeDegreeToMeter;
+  double latitudeError = (latitudeReference - (basecampGPSData.latitude))*latitudeMinuteToMeter;
+  double longitudeError = (longitudeReference - (basecampGPSData.longitude))*longitudeMinuteToMeter;
   errorValue.latitude = latitudeError;
   errorValue.longitude = longitudeError;
   return errorValue;
