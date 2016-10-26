@@ -13,6 +13,7 @@
 #include <math.h>
 #include <Arduino.h>
 
+/* These gains are obsolete with a TS of 0.1 */
 #define KP 0.218126115460278
 #define KI 0.00121153031346156
 #define KD 0.11698288703492
