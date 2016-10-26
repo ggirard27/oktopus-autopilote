@@ -21,7 +21,6 @@
 #define SECONDS 1000
 #define TEST_DELAY 15*SECONDS
 #define __BOAT__ 1
-#define __STATION__ 0
 #define MOTOR_SPEED 30
 /********************************************/
 
@@ -79,7 +78,7 @@ void setup() {
   temperatureSensor.enable();
   /*  Uncomment when xbee is integrated
   basecampGPSData = xbee.getGPSDataFromBasecamp();
-  gpsError = Utils.getGPSError(basecamp GPSData);
+  gpsError = getGPSError(basecamp GPSData);
   */
   lcd.begin(16, 2);
   lcd.clear();
@@ -105,7 +104,7 @@ void loop() {
   nextGpsData.latitude = currentGpsData.latitude + 5;
   /*  Uncomment when xbee is integrated
   basecampGPSData = xbee.getGPSDataFromBasecamp();
-  gpsError = Utils.getGPSError(basecamp GPSData);
+  gpsError = getGPSError(basecamp GPSData);
   */
   if (timer1 > millis())  timer1 = millis();
   if (timer2 > millis())  timer2 = millis();
