@@ -17,9 +17,9 @@ class Temperature : protected Sensor {
     Temperature();
     void disable();
     void enable();
-    short getData();
+    uint8_t getData();
     boolean getStatus();
-    void printData(int temperature);
+    void printData(uint8_t temperature);
     
   private:
     dht11 DHT;

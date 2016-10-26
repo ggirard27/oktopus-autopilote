@@ -23,9 +23,9 @@ void Temperature::enable(){
   _status = true;
 }
 
-short Temperature::getData(){
+uint8_t Temperature::getData(){
   
-  short data;
+  uint8_t data;
   
   data = DHT.read(_digitalPin);    // READ DATA
   switch (data){
@@ -51,7 +51,7 @@ bool Temperature::getStatus(){
   return _status;
 }
 
-void Temperature::printData(int temperature){
+void Temperature::printData(uint8_t temperature){
   
   Serial.print("Temperature: ");
   Serial.println(temperature);
