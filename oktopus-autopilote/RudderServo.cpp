@@ -24,15 +24,15 @@ void RudderServo::enable(){
   _status = true;
 }
 
-int RudderServo::getData(){
+uint8_t RudderServo::getData(){
 
-  int angle = _mapRudderServoPositionToAngle(_position);
+  uint8_t angle = _mapRudderServoPositionToAngle(_position);
   if (DEBUG) Serial.print("RudderServo position: ");
   if (DEBUG) Serial.println(analogRead(_position));
   return angle;
 }
 
-void RudderServo::printData(int angle){
+void RudderServo::printData(uint8_t angle){
   
   Serial.print("Rudder angle: ");
   Serial.println(angle);
@@ -43,19 +43,20 @@ bool RudderServo::getStatus(){
   return _status;
 }
 
-int RudderServo::_mapRudderServoPositionToAngle(int position){
+double RudderServo::_mapRudderServoPositionToAngle(uint8_t position){
   
-  int angle;
+  double angle;
   if (position < 19){
-    angle = -(2.158 * position);
+    angle = -(2.158 * (double)position);
   } else {
-    angle = -(1.464 * position);
+    angle = -(1.464 * (double)position);
   }
   return angle;
 }
 
-double RudderServo::_mapRudderServoAngleToPosition(int angle){
-  double position;
+uint8_t RudderServo::_mapRudderServoAngleToPosition(double angle){
+  
+  uint8_t position;
   Serial.println(angle);
   if (angle < 0){
     position = 40+((0.7317)*(angle));
@@ -68,31 +69,12 @@ double RudderServo::_mapRudderServoAngleToPosition(int angle){
 }
 
 void RudderServo::setAngle(double angle){
+  
   servo.write(_mapRudderServoAngleToPosition(angle));
 }
 
-void RudderServo::setPosition(int pos){
-  servo.write(pos);
-}
-
-void RudderServo::sweep(int start, int middle, int fin){
+void RudderServo::setPosition(uint8_t pos){
   
-  int pos = start;
   servo.write(pos);
-  delay(500);
-   for (pos = start; pos <= middle; pos += 1) {
-    servo.write(pos);
-    delay(15);
-    Serial.print("RudderServo position: ");
-    Serial.println(pos);
-   }
-  delay(500);
-  for (pos = middle; pos <= fin; pos += 1) {
-    servo.write(pos);
-    delay(15);
-    Serial.print("RudderServo position: ");
-    Serial.println(pos);
-  }
-  servo.write(start);
 }
 
