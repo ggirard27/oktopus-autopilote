@@ -22,9 +22,9 @@ class Gyroscope : protected Sensor {
     Gyroscope();
     void disable();
     void enable();
-    int getData(int chip);
+    double getData(int chip);
     boolean getStatus();
-    void printData(int heading);
+    void printData(double heading);
     
   private:
     LSM303 accelerometer;

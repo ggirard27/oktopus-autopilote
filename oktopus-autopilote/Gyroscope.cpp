@@ -41,8 +41,8 @@ void Gyroscope::enable(){
   _status = true;
 }
 
-int Gyroscope::getData(int chip){
-  int data;
+double Gyroscope::getData(int chip){
+  double data;
   /*
   Returns the angular difference in the horizontal plane between the
   "from" vector and north, in degrees.
@@ -59,7 +59,7 @@ int Gyroscope::getData(int chip){
   switch (chip) {
     case LSM_303:
       accelerometer.read();
-      data = (int)accelerometer.heading();
+      data = (double)accelerometer.heading();
       break;
     case L3G_20H:
       gyroscope.read();
@@ -76,7 +76,7 @@ bool Gyroscope::getStatus(){
   return _status;
 }
 
-void Gyroscope::printData(int heading){
+void Gyroscope::printData(double heading){
   
   Serial.print("Heading: ");
   Serial.println(heading);
