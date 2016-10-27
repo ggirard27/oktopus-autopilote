@@ -20,8 +20,9 @@ double PIDController::control_rudder(double setpoint){
   
   double controlled_rudder = 0;
   
-  rudder[2] = KP*theta[2] - KP*theta[1] + KI*TS*theta[1] + (KD*theta[2]/TS) - ((2*KD*theta[1])/TS) + ((KD*theta[0])/TS) + rudder[1];
-
+  //rudder[2] = KP*theta[2] - KP*theta[1] + KI*TS*theta[1] + (KD*theta[2]/TS) - ((2*KD*theta[1])/TS) + ((KD*theta[0])/TS) + rudder[1];
+  rudder[2]=2.362*theta[2]-2.05*theta[1]+0.579*rudder[1]; 
+  
   controlled_rudder = rudder[2];
    
   for (short i = 0; i < 2; i ++) {
