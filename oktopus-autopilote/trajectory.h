@@ -8,7 +8,7 @@ class trajectory
 
 	public:
 		trajectory();
-		void traj(double[][nCols] , double[][nCols]);
+		double **traj(double[][nCols] , double[][nCols]);
 		
 	private:
 		static double external_boundaries[bordRows][nCols];
@@ -17,4 +17,5 @@ class trajectory
 		double external_boundariesY[bordRows];
 		double external_boundaries2X[ileRows];
 		double external_boundaries2Y[ileRows];
+		double **value;
 };

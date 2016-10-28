@@ -51,7 +51,7 @@ double trajectory::external_boundaries2[ileRows][nCols] = {
 	{ 45.416835, -72.102203 },
 };
 
-void trajectory::traj(double start_point[][nCols], double end_point[][nCols])
+double **trajectory::traj(double start_point[][nCols], double end_point[][nCols])
 {
 	for (int i = 0; i < bordRows; i++)
 	{
@@ -70,15 +70,19 @@ void trajectory::traj(double start_point[][nCols], double end_point[][nCols])
 		(inSight.isInPoly(ileRows, external_boundaries2X, external_boundaries2Y, start_point[0][0], start_point[0][1]) == 0) &&
 		(inSight.isInPoly(ileRows, external_boundaries2X, external_boundaries2Y, end_point[0][0], end_point[0][1]) == 0))
 	{
-		double **value = pathToTake.pathFinding(start_point, end_point, external_boundaries, external_boundaries2);
+		value = pathToTake.pathFinding(start_point, end_point, external_boundaries, external_boundaries2);
 		for (int i = 1; i <= value[0][0] + 1; i++)
 		{
+			value[i][0] = ((value[i][0] - int(value[i][0]))*60)+4500;
+			value[i][1] = ((value[i][1] - int(value[i][1]))*60)-7200;
+
 			cout << value[i][0] << ", " << value[i][1] << endl;
 		}
 
 	}
 	else
 		cout << "Point de debut ou d'arrive est a l'exterieur du cadre";
-
+	
 	cin.get();
+	return value;
 }
