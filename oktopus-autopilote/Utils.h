@@ -8,6 +8,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <math.h>
+
 struct NMEAData {
   
   short hour;
@@ -34,7 +36,7 @@ static NMEAData getGPSError(NMEAData basecampGPSData) {
   NMEAData errorValue;
   
   const double latitudeDegreeToMeter = 111320.0, longitudeDegreeToMeter = 77816.5;
-  const double latitudeMinuteToMeter = latitudeDegreeToMeter/(double)60.0, longitudeDegreeToMeter = longitudeDegreeToMeter/(double)60.0;
+  double latitudeMinuteToMeter = latitudeDegreeToMeter/(double)60.0, longitudeMinuteToMeter = longitudeDegreeToMeter/(double)60.0;
   
   /* GPS coordinates of Lac Montjoie basecamp station minus the invariable degree part. The degrees will not change, but minutes and seconds will, so we remove the degree part */
   const double latitudeReference = 74.60, longitudeReference = 64.80;
@@ -44,6 +46,20 @@ static NMEAData getGPSError(NMEAData basecampGPSData) {
   errorValue.latitude = latitudeError;
   errorValue.longitude = longitudeError;
   return errorValue;
+}
+
+static double getDistanceBetweenGPSPoints(NMEAData firstPoint, NMEAData secondPoint) {
+
+  double distance;
+  
+  const double latitudeDegreeToMeter = 111320.0, longitudeDegreeToMeter = 77816.5;
+  double latitudeMinuteToMeter = latitudeDegreeToMeter/(double)60.0, longitudeMinuteToMeter = longitudeDegreeToMeter/(double)60.0;
+
+  double latitudeDistance = (firstPoint.latitude - secondPoint.latitude)*latitudeMinuteToMeter;
+  double longitudeDistance = (firstPoint.longitude - secondPoint.longitude)*longitudeMinuteToMeter;
+
+  distance = sqrt(pow(latitudeDistance, 2) + pow(longitudeDistance, 2));
+  return distance;
 }
 
 static double averageDataSamples(double dataSamples[], int numberOfSamples) {
