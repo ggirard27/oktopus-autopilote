@@ -14,6 +14,7 @@
 #include "RudderServo.h"
 #include "Temperature.h"
 #include <LiquidCrystal.h>
+#include "EmergencyHandler.h"
 
 /*
  * Defines
@@ -22,6 +23,9 @@
 #define TEST_DELAY 15*SECONDS
 #define __BOAT__ 1
 #define MOTOR_SPEED 30
+#define TEMPERATURE_THRESHOLD 50
+#define SONAR_THRESHOLD 1
+#define PROXIMITY_THRESHOLD 1
 /********************************************/
 
 
@@ -35,6 +39,7 @@
   Moisture moistureSensor;
   RudderServo rudderServo;
   Temperature temperatureSensor;
+  EmergencyHandler emergencyHandler("Dry", TEMPERATURE_THRESHOLD, SONAR_THRESHOLD, PROXIMITY_THRESHOLD);
 #endif
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 GPS gps;
@@ -45,6 +50,9 @@ GPS gps;
  * Variable definitions and initialization
  */
 #if __BOAT__>0
+  int currentEmergencyState = 0;
+  int sonar = 0;
+  int proximity = 0;
   NMEAData nextGpsData;
   NMEAData basecampGPSData;
   NMEAData gpsError;
@@ -56,6 +64,7 @@ GPS gps;
   double rudder = 0.0;
   uint32_t timer1;
   uint32_t timer2;
+  double distanceToTarget = 0.00;
 #endif /* __BOAT__ */
 
 NMEAData currentGpsData;
@@ -89,15 +98,31 @@ void setup() {
   delay(TEST_DELAY);
   timer1 = millis();
   timer2 = millis();
+
+  moisture = moistureSensor.getData();
+  temperature = temperatureSensor.getData();
+
+  currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximity);
+  
 #endif /* __BOAT__ */
  /********************************************/
 }
 
 void loop() {
-  
   currentGpsData = gps.getData();
 
 #if __BOAT__>0
+  
+  currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximity);
+  while (currentEmergencyState != 0) {
+    emergencyHandler.handleEmergency(currentEmergencyState);
+    Serial.println("In emergency state loop.");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("In emergency state loop.");
+    currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximity);
+  }
+  
   esc.setSpeed(MOTOR_SPEED, 0, 100);
 
   nextGpsData.longitude = currentGpsData.longitude + 5;
