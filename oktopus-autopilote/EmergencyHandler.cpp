@@ -18,18 +18,22 @@ EmergencyHandler::EmergencyHandler(String moistureThreshold, int temperatureThre
 int EmergencyHandler::testConditions(String moisture, int temperature, int sonar, int proximity){
 
   int emergency_state = 0;
-  
+  /*
   if (moisture != _moistureThreshold){
       emergency_state |= MOISTURE_THRESHOLD_EXCEEDED_FLAG;
-  }
+      Serial.println("moisture");
+  }*/
   if (temperature > _temperatureThreshold){
       emergency_state |= TEMPERATURE_THRESHOLD_EXCEEDED_FLAG;
+      Serial.println("temperature");
   }
   if (sonar > _sonarThreshold){
       emergency_state |= SONAR_THRESHOLD_EXCEEDED_FLAG;
+      Serial.println("sonar");
   }
   if (proximity > _proximityThreshold){
       emergency_state |= PROXIMITY_THRESHOLD_EXCEEDED_FLAG;
+      Serial.println("proximity");
   }
   return emergency_state;
 }
