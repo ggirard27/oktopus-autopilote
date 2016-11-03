@@ -27,7 +27,7 @@ class EmergencyHandler {
   
   public: 
     EmergencyHandler(String moistureThreshold, int temperatureThreshold, int sonarThreshold, int proximityThreshold);
-    int testConditions(String moisture, int temperature, int sonar, int proximity);
+    int testConditions(String moisture, int temperature, int sonar, ProximitySensorData proximity);
     void handleEmergency(int emergencyState);
 };
 #endif

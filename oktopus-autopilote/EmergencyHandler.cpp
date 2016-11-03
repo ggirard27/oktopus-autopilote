@@ -15,7 +15,7 @@ EmergencyHandler::EmergencyHandler(String moistureThreshold, int temperatureThre
   _proximityThreshold = proximityThreshold;
 }
 
-int EmergencyHandler::testConditions(String moisture, int temperature, int sonar, int proximity){
+int EmergencyHandler::testConditions(String moisture, int temperature, int sonar, ProximitySensorData proximity){
 
   int emergency_state = 0;
   /*
@@ -31,9 +31,17 @@ int EmergencyHandler::testConditions(String moisture, int temperature, int sonar
       emergency_state |= SONAR_THRESHOLD_EXCEEDED_FLAG;
       Serial.println("sonar");
   }
-  if (proximity > _proximityThreshold){
+  if (proximity.sensor1 > _proximityThreshold){
       emergency_state |= PROXIMITY_THRESHOLD_EXCEEDED_FLAG;
-      Serial.println("proximity");
+      Serial.println("proximity sensor 1");
+  }
+  if (proximity.sensor2 > _proximityThreshold){
+      emergency_state |= PROXIMITY_THRESHOLD_EXCEEDED_FLAG;
+      Serial.println("proximity sensor 2"); 
+  }
+  if (proximity.sensor3 > _proximityThreshold){
+      emergency_state |= PROXIMITY_THRESHOLD_EXCEEDED_FLAG;
+      Serial.println("proximity sensor 3");
   }
   return emergency_state;
 }

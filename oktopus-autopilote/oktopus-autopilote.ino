@@ -11,6 +11,7 @@
 #include "Utils.h"
 #include "Gyroscope.h"
 #include "Moisture.h"
+#include "ProximitySensor.h"
 #include "RudderServo.h"
 #include "Temperature.h"
 #include <LiquidCrystal.h>
@@ -37,6 +38,7 @@
   ESC esc(1500, 2000, 3);
   Gyroscope gyroscope;
   Moisture moistureSensor;
+  ProximitySensor proximitySensorArray;
   RudderServo rudderServo;
   Temperature temperatureSensor;
   EmergencyHandler emergencyHandler("Dry", TEMPERATURE_THRESHOLD, SONAR_THRESHOLD, PROXIMITY_THRESHOLD);
@@ -52,7 +54,7 @@ GPS gps;
 #if __BOAT__>0
   int currentEmergencyState = 0;
   int sonar = 0;
-  int proximity = 0;
+  ProximitySensorData proximitySensorData;
   NMEAData nextGpsData;
   NMEAData basecampGPSData;
   NMEAData gpsError;
@@ -85,6 +87,7 @@ void setup() {
   moistureSensor.enable();
   rudderServo.enable();
   temperatureSensor.enable();
+  proximitySensorArray.enable();
   /*  Uncomment when xbee is integrated
   basecampGPSData = xbee.getGPSDataFromBasecamp();
   gpsError = getGPSError(basecamp GPSData);
@@ -102,7 +105,7 @@ void setup() {
   moisture = moistureSensor.getData();
   temperature = temperatureSensor.getData();
 
-  currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximity);
+  currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
   
 #endif /* __BOAT__ */
  /********************************************/
@@ -113,14 +116,14 @@ void loop() {
 
 #if __BOAT__>0
   
-  currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximity);
+  currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
   while (currentEmergencyState != 0) {
     emergencyHandler.handleEmergency(currentEmergencyState);
     Serial.println("In emergency state loop.");
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("In emergency state loop.");
-    currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximity);
+    currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
   }
   
   esc.setSpeed(MOTOR_SPEED, 0, 100);

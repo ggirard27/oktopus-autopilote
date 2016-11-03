@@ -10,6 +10,13 @@
 
 #include <math.h>
 
+struct ProximitySensorData {
+
+  int sensor1;
+  int sensor2;
+  int sensor3;
+};
+
 struct NMEAData {
   
   short hour;
