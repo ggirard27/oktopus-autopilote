@@ -1,4 +1,4 @@
-#include <iostream>
+//#include <iostream>
 #include "trajectory.h"
 
 trajectory::trajectory()
@@ -76,13 +76,13 @@ double **trajectory::traj(double start_point[][nCols], double end_point[][nCols]
 			value[i][0] = ((value[i][0] - int(value[i][0]))*60)+4500;
 			value[i][1] = ((value[i][1] - int(value[i][1]))*60)-7200;
 
-			cout << value[i][0] << ", " << value[i][1] << endl;
+			//cout << value[i][0] << ", " << value[i][1] << endl;
 		}
 
 	}
-	else
-		cout << "Point de debut ou d'arrive est a l'exterieur du cadre";
+	//else
+		//cout << "Point de debut ou d'arrive est a l'exterieur du cadre";
 	
-	cin.get();
+	//cin.get();
 	return value;
 }
