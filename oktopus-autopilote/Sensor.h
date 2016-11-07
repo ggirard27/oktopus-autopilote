@@ -9,7 +9,7 @@
 #define SENSOR_H
 
 #define DEBUG false
-#define VERBOSE true
+#define VERBOSE false
 
 #include <Arduino.h>
 

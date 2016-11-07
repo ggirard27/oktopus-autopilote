@@ -28,6 +28,6 @@ class RudderServo : protected Sensor {
     uint8_t _mapRudderServoAngleToPosition(double angle);
     Servo servo;
     uint8_t _position;
-    uint8_t _digitalPin = 2;
+    uint8_t _digitalPin = 11;
 };
 #endif
