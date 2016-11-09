@@ -22,7 +22,7 @@
  * Defines
  */
 #define SECONDS 1000
-#define TEST_DELAY 3*SECONDS
+#define TEST_DELAY 10*SECONDS
 #define __BOAT__ 1
 #define MOTOR_SPEED 15
 #define TEMPERATURE_THRESHOLD 50
@@ -35,13 +35,13 @@
  * Object instanciation
  */
 #if __BOAT__>0
-  //PIDController PIDController;
+  PIDController PIDController;
   ESC esc(1500, 2000, 12);
   Gyroscope gyroscope;
   //Moisture moistureSensor;
   //ProximitySensor proximitySensorArray;
   RudderServo rudderServo;
-  XbeeReceiver myXbee;
+  //XbeeReceiver myXbee;
   //Temperature temperatureSensor;
   //EmergencyHandler emergencyHandler("Dry", TEMPERATURE_THRESHOLD, SONAR_THRESHOLD, PROXIMITY_THRESHOLD);
 #endif
@@ -88,7 +88,7 @@ void setup() {
    * Sensor initialization
    */
   gps.enable();
-  myXbee.begin();
+  //myXbee.begin();
   
 #if __BOAT__>0
   Serial.begin(115200); 
@@ -103,7 +103,7 @@ void setup() {
   */
   delay(TEST_DELAY);
   timer1 = millis();
-  //timer2 = millis(); n 
+  timer2 = millis();
 
   //moisture = moistureSensor.getData();
   //temperature = temperatureSensor.getData();
@@ -119,20 +119,34 @@ void loop() {
 
 #if __BOAT__>0
   
-  myXbee.receiveData(); //Update les valeurs du servo, esc et GPS de la sation fixe
-  mode = myXbee.getMode();  //Retourne le mode de communication de la station fixe (Manuel,GPS)
-  
+  //myXbee.receiveData(); //Update les valeurs du servo, esc et GPS de la sation fixe
+  //mode = myXbee.getMode();  //Retourne le mode de communication de la station fixe (Manuel,GPS)
+   //Serial.print("    xbee: ");
+   //Serial.print(mode);
+  /* 
   if(mode == Manuel){
-    servoValue = myXbee.getServoValue();
-    escValue = myXbee.getEscValue();
+//    servoValue = myXbee.getServoValue();
+  //  escValue = myXbee.getEscValue();
     rudderServo.setAngle(servoValue);
     esc.setSpeed(escValue, 0, 100);  
   }
   else if(mode == GPS){
-    gpsValue = myXbee.getGPSValue();
-    esc.setSpeed(MOTOR_SPEED, 0, 100);  
+//    gpsValue = myXbee.getGPSValue();
+    esc.setSpeed(MOTOR_SPEED, 0, 100);
+      
   }
-  
+  */
+
+    
+  if(millis() - timer2 < 25001)
+  {  
+    //Serial.print("timer 2: "); 
+    //Serial.print(millis() - timer2);
+  esc.setSpeed(MOTOR_SPEED, 0, 100);
+  }
+  if(millis()-timer2>25001){
+      esc.setSpeed(0, 0, 100);
+    }
   //currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
   /*
   while (currentEmergencyState != 0) {
@@ -145,34 +159,42 @@ void loop() {
   }
   */
 
-  //nextGpsData.longitude = currentGpsData.longitude + 5;
-  //nextGpsData.latitude = currentGpsData.latitude + 5;
+  currentGpsData.latitude = 0;
+  currentGpsData.latitude = 0;
+  nextGpsData.longitude = currentGpsData.longitude + (double)0.5;
+  nextGpsData.latitude = currentGpsData.latitude  - (double)0.866;
   /*  Uncomment when xbee is integrated
   basecampGPSData = xbee.getGPSDataFromBasecamp();
   gpsError = getGPSError(basecamp GPSData);
   */
   if (timer1 > millis())  timer1 = millis();
-  //if (timer2 > millis())  timer2 = millis();
+  if (timer2 > millis())  timer2 = millis();
   
   if (millis() - timer1 > 500) {
     
     timer1 = millis();
     heading = gyroscope.getData(LSM_303);
-    //theta = PIDController.compute_theta(currentGpsData, nextGpsData, heading);
-    //rudder = PIDController.control_rudder(theta);
+    theta = PIDController.compute_theta(currentGpsData, nextGpsData, heading);
+    rudder = PIDController.control_rudder(theta);
+    rudderServo.setAngle(rudder);
+    Serial.print("gyro: ");
+    gyroscope.printData(heading);
+    Serial.print("    theta: ");
+    Serial.print(theta);
+    Serial.print("    safran: ");
+    Serial.print(rudder);
+    Serial.println();
     //cycleDataOnLCD();
   }
-  /*
-  if (millis() - timer2 > 5000) {
-   
-      timer2 = millis();
-      moisture = moistureSensor.getData();
-      temperature = temperatureSensor.getData();
+
+  
+      //moisture = moistureSensor.getData();
+      //temperature = temperatureSensor.getData();
       
-      moistureSensor.printData(moisture);
-      temperatureSensor.printData(temperature);
-  }
-  */
+      //moistureSensor.printData(moisture);
+      //temperatureSensor.printData(temperature);
+      
+  
 #endif /* __BOAT__ */
 }
 

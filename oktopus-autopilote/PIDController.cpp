@@ -39,6 +39,11 @@ double PIDController::control_rudder(double setpoint){
     controlled_rudder = -41;
   }  
 
+  if(controlled_rudder<15 && controlled_rudder>-15)
+  {
+    controlled_rudder=0;
+    }
+
   return controlled_rudder;
  
 }
