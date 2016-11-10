@@ -46,24 +46,37 @@ bool RudderServo::getStatus(){
 double RudderServo::_mapRudderServoPositionToAngle(uint8_t position){
   
   double angle;
-  if (position < 19){
-    angle = -(2.158 * (double)position);
-  } else {
-    angle = -(1.464 * (double)position);
-  }
+  if (position < 10){
+    angle = -39 + 1.4*(double)position;
+  } else if ( 9 < position < 18){
+    angle = -25 + 1.375*(double)position;
+  } else if ( 17 < position < 30){
+    angle = -14 + 1.166*(double)position;
+  } else if ( 29 < position < 50){
+    angle = 0 + 0.9*(double)position;
+} else if ( 49 < position < 70){
+    angle = 18 + 0.7*(double)position;
+} else if ( 69 < position  ){
+    angle = 32 + 0.3*(double)position;
   return angle;
+}
 }
 
 uint8_t RudderServo::_mapRudderServoAngleToPosition(double angle){
   
   uint8_t position;
-  Serial.println(angle);
-  if (angle < 0){
-    position = 40+((0.7317)*(angle));
-    Serial.println(position);
-  } else {
-    position = 40 + ((1.34)*(angle));
-    Serial.println(position);
+  if (angle < -25){
+    position = ((0.7143)*(angle+39));
+  } else if ( -26 < angle <-14) {
+    position = 10 + ((0.7273)*(angle+25));
+ } else if ( -15 < angle <0) {
+    position = 18 + ((0.8571)*(angle+14));
+ } else if ( -1 < angle <19) {
+    position = 30 + ((1.1111)*(angle));
+} else if ( 18 < angle <33) {
+    position = 50 + ((1.4286)*(angle-18));
+} else if ( 32 < angle) {
+    position = 70 + ((3.3333)*(angle-32));
   }
   return position;
 }
