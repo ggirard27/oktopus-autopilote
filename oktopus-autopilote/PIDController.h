@@ -13,22 +13,25 @@
 #include <math.h>
 #include <Arduino.h>
 
-/* These gains are obsolete with a TS of 0.1 */
-#define KP 0.218126115460278
-#define KI 0.00121153031346156
-#define KD 0.11698288703492
 #define TS 0.1
 
 class PIDController {
   
   public: 
+    static const int InertialDerivationDistance = 5;
     PIDController();
+    void enableApproachMode();
+    void enableCruisingMode();
     double theta[50];
     double rudder[50];
     double actuator[50];
     double wave[50];
+    double fact_p;
+    double fact_x;
+    double fact_y;
     double control_rudder(double setpoint);
     double compute_theta(NMEAData current, NMEAData next, double heading);
   
 };
 #endif
+

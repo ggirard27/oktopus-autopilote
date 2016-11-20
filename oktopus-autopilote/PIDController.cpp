@@ -16,13 +16,39 @@ PIDController::PIDController(){
   }
 }
 
+void PIDController::enableCruisingMode()
+{
+  /* Scatmanmode
+    fact_p = 2.362;
+    fact_x = -2.05;
+    fact_y = 0.579;
+    */
+    fact_p = 0.1892;
+    fact_x = -0.1831;
+    fact_y = 0.9838;
+  }
+
+void PIDController::enableApproachMode()
+{
+    fact_p = 17.01;
+    fact_x = -15.53;
+    fact_y = 0.5781;
+}
+
 double PIDController::control_rudder(double setpoint){
   
   double controlled_rudder = 0;
-  
+
+   if (setpoint <5 && setpoint>-5){
+    theta[2] = 0;
+  }  
+  else{
+    theta[2] = setpoint;
+  } 
+ 
   //rudder[2] = KP*theta[2] - KP*theta[1] + KI*TS*theta[1] + (KD*theta[2]/TS) - ((2*KD*theta[1])/TS) + ((KD*theta[0])/TS) + rudder[1];
-  rudder[2]=2.362*theta[2]-2.05*theta[1]+0.579*rudder[1]; 
-  
+ // rudder[2]=2.362*theta[2]-2.05*theta[1]+0.579*rudder[1]; 
+  rudder[2]=fact_p*theta[2]+fact_x*theta[1]+fact_y*rudder[1]; 
   controlled_rudder = rudder[2];
    
   for (short i = 0; i < 2; i ++) {
@@ -30,7 +56,7 @@ double PIDController::control_rudder(double setpoint){
     rudder[i] = rudder[i+1];
   }
   
-  theta[2] = setpoint;
+  //theta[2] = setpoint;
   
   if (controlled_rudder > 41){
     controlled_rudder = 41;
@@ -38,6 +64,11 @@ double PIDController::control_rudder(double setpoint){
   if (controlled_rudder < -41){
     controlled_rudder = -41;
   }  
+
+  //if(controlled_rudder<10 && controlled_rudder>-10)
+  //{
+   // controlled_rudder=0;
+   // }
 
   return controlled_rudder;
  
@@ -50,14 +81,14 @@ double PIDController::compute_theta(NMEAData current, NMEAData next, double head
 
     NMEAData *delta = new NMEAData();
 
-    // Code à utiliser avec GPS
-    // delta->longitude = next.longitude - current.longitude;
-    // delta->latitude = next.latitude - current.latitude;
-    // Fin code à utiliser avec GPS
+    // Code Ã  utiliser avec GPS
+     delta->longitude = next.longitude - current.longitude;
+     delta->latitude = next.latitude - current.latitude;
+    // Fin code Ã  utiliser avec GPS
 
     // Hardcode test 1
-    delta->longitude = 1;
-    delta->latitude = 0;
+    //delta->longitude = 1;
+    //delta->latitude = 0;
 
 
     if (delta->latitude > 0 && delta->longitude >= 0)
@@ -89,4 +120,5 @@ double PIDController::compute_theta(NMEAData current, NMEAData next, double head
 
     return theta_angle;
 }
+
 
