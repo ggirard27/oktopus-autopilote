@@ -1,17 +1,7 @@
 #include "lineOfSight.h"
 
-LoS::LoS()
-{
-	point_1[1][nCols] = { 0 }, point_2[1][nCols] = { 0 };
-	k = 0, i = 0;
-	dot_product = 0;
-	intersection_check = 0;
-	visibility = 0;
-	p_calculation_numerator = 0, p_calculation_denominator = 0, p = 0, q = 0, smallest = 0, x_midpoint = 0, y_midpoint = 0, distance_array[bordRows + ileRows] = { 0 }, empty_array[bordRows + ileRows] = { 0 };
-
-	boundariesX[bordRows + ileRows] = { 0 };
-	boundariesY[bordRows + ileRows] = { 0 };
-	locatedInPolygon = false;
+LoS::LoS(){
+	
 }
 
 bool LoS::isOnPoly(int npol, const double *xp, const double *yp, double x, double y)
@@ -29,7 +19,7 @@ bool LoS::isOnPoly(int npol, const double *xp, const double *yp, double x, doubl
 
 bool LoS::isInPoly(int npol, const double *xp, const double *yp, double x, double y)
 {
-	locatedInPolygon = false;
+	bool locatedInPolygon = false;
 	for (int i = 0, j = npol - 1; i < npol; j = i++)
 	{
 		if ((((yp[i] <= y) && (y < yp[j])) || ((yp[j] <= y) && (y < yp[i]))) && (x < (xp[j] - xp[i]) * (y - yp[i]) / (yp[j] - yp[i]) + xp[i]))
@@ -40,7 +30,17 @@ bool LoS::isInPoly(int npol, const double *xp, const double *yp, double x, doubl
 
 int LoS::lineOfSight(double observerState[][2], double currentTargetNode[][2], double boundaries[bordRows + ileRows][2])
 {
-	i = 0;
+    double point_1[1][nCols], point_2[1][nCols], beam_direction_vector[1][nCols], wall_direction_vector[1][nCols];
+    int k = 0, i = 0;
+    double dot_product = 0;
+    double intersection_check = 0;
+    double p_calculation_numerator = 0, p_calculation_denominator = 0, p = 0, q = 0, smallest = 0, x_midpoint = 0, y_midpoint = 0, distance_array[bordRows + ileRows], empty_array[bordRows + ileRows];
+    bool IN = false, ON = false;
+    bool visibility = false;
+    
+    double boundariesX[bordRows + ileRows] = {0};
+    double boundariesY[bordRows + ileRows] = {0};
+  
 	for (int k = 0; k < bordRows + ileRows; k++)
 	{
 		

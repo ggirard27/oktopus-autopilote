@@ -1,15 +1,28 @@
 #include "pathFinder.h"
+#include <Arduino.h>
 
 pathFinder::pathFinder()
 {
-	combined_nodes[2 + bordRows + ileRows] = { 0 }, visible_neighbours_library[2 + bordRows + ileRows][2 + bordRows + ileRows] = { 0 }, shortest_path_array[nCols][2 + bordRows + ileRows] = { 0 }, min_distance;
-	current_node_ID_index = 0, current_node_ID = 0, visitedNodes = 0, posCounter = 0, targetNodeID = 0, path_index = 0, path[2 + bordRows + ileRows] = { 0 };
-	cumulative_distance_to_current_node = 0, new_cumulative_distance = 0, previous_cumulative_distance_to_target_node = 0, distance_from_current_to_target_node = 0;
-	visibility = 0;
+}
+
+pathFinder::~pathFinder()
+{
+  delete[] way_Coordinates;
+  way_Coordinates = nullptr;
 }
 
 double **pathFinder::pathFinding(double start_point[][nCols], double end_point[][nCols], double external_boundaries[bordRows][nCols], double external_boundaries2[ileRows][nCols])
-{
+{  
+    double combined_nodes[2 + bordRows + ileRows], visible_neighbours_library[2 + bordRows + ileRows][2 + bordRows + ileRows], shortest_path_array[nCols][2 + bordRows + ileRows], min_distance;
+    int current_node_ID_index = 0, current_node_ID = 0, visitedNodes = 0, posCounter = 0, targetNodeID = 0, path_index = 0, path[2 + bordRows + ileRows];
+    int *unvisited_nodes, *pathToTake;
+    float cumulative_distance_to_current_node = 0, new_cumulative_distance = 0, previous_cumulative_distance_to_target_node = 0, distance_from_current_to_target_node = 0;
+    double boundaries[bordRows + ileRows][nCols];
+    double observerState[1][nCols];
+    double currentTargetNode[1][nCols];
+    double initial_combined_nodes[2 + bordRows + ileRows][nCols];
+    int visibility = 0;
+    
 	// external boundaries
 	for (int i = 0; i < nodeObstacle; i++)
 	{
@@ -48,14 +61,14 @@ double **pathFinder::pathFinding(double start_point[][nCols], double end_point[]
 	}
 	initial_combined_nodes[1 + bordRows + ileRows][0] = end_point[0][0];
 	initial_combined_nodes[1 + bordRows + ileRows][1] = end_point[0][1];
-
+    
 	// Initialize vector infinity
 	for (int i = 0; i < (bordRows + ileRows + 2); i++)
 	{
 		for (int j = 0; j < (bordRows + ileRows + 2); j++)
 		{
 			visible_neighbours_library[i][j] = NAN;
-		}
+    }
 		combined_nodes[i] = NAN;
 	}
 
@@ -216,7 +229,6 @@ double **pathFinder::pathFinding(double start_point[][nCols], double end_point[]
 		way_Coordinates[i + 1][0] = initial_combined_nodes[pathToTake[i + 1]][0];
 		way_Coordinates[i + 1][1] = initial_combined_nodes[pathToTake[i + 1]][1];
 	}
-
 	// store sizeof(dynamic array) in first array 
 	way_Coordinates[0][0] = path_index;
 
