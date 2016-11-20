@@ -44,7 +44,7 @@
   RudderServo rudderServo;
   Temperature temperatureSensor;
   Trajectory trajectory;
-  EmergencyHandler emergencyHandler("Dry", TEMPERATURE_THRESHOLD, SONAR_THRESHOLD, PROXIMITY_THRESHOLD);
+  //EmergencyHandler emergencyHandler("Dry", TEMPERATURE_THRESHOLD, SONAR_THRESHOLD, PROXIMITY_THRESHOLD);
 #endif
 
 GPS gps;
@@ -95,7 +95,7 @@ void setup() {
    * Sensor initialization
    */
   gps.enable();
-  xbee.begin();
+  //xbee.begin();
 
   delay(2*SECONDS);
   
@@ -141,6 +141,7 @@ void loop() {
 
 #if __BOAT__>0
 
+  /*
   xbee.receiveData(); //Update les valeurs du servo, esc et GPS de la sation fixe
   mode = xbee.getMode();  //Retourne le mode de communication de la station fixe (Manuel,GPS)
   Serial.print("xbee: ");
@@ -155,6 +156,7 @@ void loop() {
     gpsValue = xbee.getGPSValue();
     esc.setSpeed(MOTOR_SPEED, 0, 100);
   }
+  */
   /*currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
   while (currentEmergencyState != 0) {
     emergencyHandler.handleEmergency(currentEmergencyState);
@@ -185,9 +187,10 @@ void loop() {
     timer1 = millis();
     heading = gyroscope.getData(LSM_303);
     theta = PIDController.compute_theta(currentGpsData, nextGpsData, heading);
+    Serial.println("Theta: " + getDistanceBetweenGPSPoints(currentGpsData, nextGpsData));
     rudder = PIDController.control_rudder(theta);
     rudderServo.setAngle(rudder);
-    Serial.println(getDistanceBetweenGPSPoints(currentGpsData, nextGpsData));
+    Serial.println("Distance: " + getDistanceBetweenGPSPoints(currentGpsData, nextGpsData));
   }
   
   if (millis() - timer2 > 5000) {
