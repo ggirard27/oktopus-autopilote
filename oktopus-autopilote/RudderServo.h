@@ -17,17 +17,17 @@ class RudderServo : protected Sensor {
     RudderServo();
     void disable();
     void enable();
-    uint8_t getData();
+    double getData();
     boolean getStatus();
-    void printData(uint8_t angle);
+    void printData(double angle);
     void setAngle(double angle);
-    void setPosition(uint8_t pos);
+    void setPosition(double pos);
     
   private:
-    double _mapRudderServoPositionToAngle(uint8_t position);
-    uint8_t _mapRudderServoAngleToPosition(double angle);
+    double _mapRudderServoPositionToAngle(double position);
+    double _mapRudderServoAngleToPosition(double angle);
     Servo servo;
-    uint8_t _position;
+    double _position;
     uint8_t _digitalPin = 2;
 };
 #endif

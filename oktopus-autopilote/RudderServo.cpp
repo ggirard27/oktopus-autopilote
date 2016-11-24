@@ -24,15 +24,15 @@ void RudderServo::enable(){
   _status = true;
 }
 
-uint8_t RudderServo::getData(){
+double RudderServo::getData(){
 
-  uint8_t angle = _mapRudderServoPositionToAngle(_position);
+  double angle = _mapRudderServoPositionToAngle(_position);
   if (DEBUG) Serial.print("RudderServo position: ");
   if (DEBUG) Serial.println(analogRead(_position));
   return angle;
 }
 
-void RudderServo::printData(uint8_t angle){
+void RudderServo::printData(double angle){
   
   Serial.print("Rudder angle: ");
   Serial.println(angle);
@@ -43,27 +43,27 @@ bool RudderServo::getStatus(){
   return _status;
 }
 
-double RudderServo::_mapRudderServoPositionToAngle(uint8_t position){
+double RudderServo::_mapRudderServoPositionToAngle(double position){
   
   double angle;
   if (position < 19){
-    angle = -(2.158 * (double)position);
+    angle = -(2.158 * position);
   } else {
-    angle = -(1.464 * (double)position);
+    angle = -(1.464 * position);
   }
   return angle;
 }
 
-uint8_t RudderServo::_mapRudderServoAngleToPosition(double angle){
+double RudderServo::_mapRudderServoAngleToPosition(double angle){
   
-  uint8_t position;
-  Serial.println(angle);
+  double position;
+  if (DEBUG) Serial.println(angle);
   if (angle < 0){
     position = 40+((0.7317)*(angle));
-    Serial.println(position);
+    if (DEBUG) Serial.println(position);
   } else {
     position = 40 + ((1.34)*(angle));
-    Serial.println(position);
+    if (DEBUG) Serial.println(position);
   }
   return position;
 }
@@ -73,7 +73,7 @@ void RudderServo::setAngle(double angle){
   servo.write(_mapRudderServoAngleToPosition(angle));
 }
 
-void RudderServo::setPosition(uint8_t pos){
+void RudderServo::setPosition(double pos){
   
   servo.write(pos);
 }
