@@ -35,19 +35,16 @@ void PIDController::enableApproachMode()
     fact_y = 0.5781;
 }
 
-double PIDController::control_rudder(double setpoint){
+double PIDController::controlRudder(double setpoint){
   
   double controlled_rudder = 0;
 
-   if (setpoint <5 && setpoint>-5){
+  if (setpoint <5 && setpoint>-5) {
     theta[2] = 0;
   }  
-  else{
+  else {
     theta[2] = setpoint;
   } 
- 
-  //rudder[2] = KP*theta[2] - KP*theta[1] + KI*TS*theta[1] + (KD*theta[2]/TS) - ((2*KD*theta[1])/TS) + ((KD*theta[0])/TS) + rudder[1];
- // rudder[2]=2.362*theta[2]-2.05*theta[1]+0.579*rudder[1]; 
   rudder[2]=fact_p*theta[2]+fact_x*theta[1]+fact_y*rudder[1]; 
   controlled_rudder = rudder[2];
    
@@ -55,26 +52,18 @@ double PIDController::control_rudder(double setpoint){
     theta[i] = theta[i+1];
     rudder[i] = rudder[i+1];
   }
-  
-  //theta[2] = setpoint;
-  
-  if (controlled_rudder > 41){
+   
+  if (controlled_rudder > 41) {
     controlled_rudder = 41;
-  }
-  if (controlled_rudder < -41){
+  } 
+  else if (controlled_rudder < -41) {
     controlled_rudder = -41;
   }  
-
-  //if(controlled_rudder<10 && controlled_rudder>-10)
-  //{
-   // controlled_rudder=0;
-   // }
-
   return controlled_rudder;
  
 }
 
-double PIDController::compute_theta(NMEAData current, NMEAData next, double heading)
+double PIDController::computeTheta(NMEAData current, NMEAData next, double heading)
 {
     double position_angle = 0.00;
     double theta_angle = 0.00;

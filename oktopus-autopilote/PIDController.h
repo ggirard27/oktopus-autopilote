@@ -29,8 +29,8 @@ class PIDController {
     double fact_p;
     double fact_x;
     double fact_y;
-    double control_rudder(double setpoint);
-    double compute_theta(NMEAData current, NMEAData next, double heading);
+    double controlRudder(double setpoint);
+    double computeTheta(NMEAData current, NMEAData next, double heading);
   
 };
 #endif
