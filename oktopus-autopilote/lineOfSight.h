@@ -1,10 +1,15 @@
 #include <math.h>
-
+/*
 #define bordRows 6//30 //6 test campus
 #define ileRows 5//6 //5  test campus
 #define nCols 2
 #define nodeObstacle 4//3 //4 test sur campus
- 
+*/
+#define bordRows 8//30 //6 test campus
+#define ileRows 7//6 //5  test campus
+#define nCols 2
+#define nodeObstacle 3//3 //4 test sur campus
+
 class LoS
 {
 	friend class Trajectory;
