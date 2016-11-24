@@ -21,9 +21,9 @@ void GPS::enable(){
   GPSPortSerial.begin(9600);
 
   // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  GPSShield->sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  //GPSShield->sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   // uncomment this line to turn on only the "minimum recommended" data
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
+  GPSShield->sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
   // For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
   // the parser doesn't care about other sentences at this time
   
@@ -33,11 +33,7 @@ void GPS::enable(){
   // print it out we don't suggest using anything higher than 1 Hz
 
   // Request updates on antenna status, comment out to keep quiet
-  GPSShield->sendCommand(PGCMD_ANTENNA);
-
-  // the nice thing about this code is you can have a timer0 interrupt go off
-  // every 1 millisecond, and read data from the GPS for you. that makes the
-  // loop code a heck of a lot easier!
+  //GPSShield->sendCommand(PGCMD_ANTENNA);
 
   delay(1000);
   // Ask for firmware version
@@ -68,7 +64,6 @@ NMEAData GPS::getData(){
   }
   
   if (c){
-    
     gpsData.hour = GPSShield->hour;
     gpsData.minute = GPSShield->minute;
     gpsData.seconds = GPSShield->seconds;

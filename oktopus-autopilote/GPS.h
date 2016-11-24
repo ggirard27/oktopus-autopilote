@@ -12,7 +12,7 @@
 #include "Sensor.h"
 #include "Utils.h"
 
-#define GPSPortSerial Serial2
+#define GPSPortSerial Serial1
 
 class GPS : protected Sensor {
   
