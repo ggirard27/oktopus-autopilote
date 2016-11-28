@@ -5,49 +5,99 @@
 // Revision: v0.0.1
 // Licence: Apache License Version 2.0, January 2004 http://www.apache.org/licenses/
 
-#include "PIDController.h"
+/*
+ * Proprietary code includes
+ */
+#include "Controller.h"
+#include "EmergencyHandler.h"
 #include "ESC.h"
 #include "GPS.h"
-#include "Utils.h"
 #include "Gyroscope.h"
 #include "Moisture.h"
 #include "ProximitySensor.h"
 #include "RudderServo.h"
 #include "Temperature.h"
-#include "EmergencyHandler.h"
-#include "XbeeReceiver.h"
 #include "Trajectory.h"
+#include "Utils.h"
+#include "XbeeReceiver.h"
 
 /*
- * Defines
+ * Arduino includes
+ */
+#include <Wire.h>
+
+/*
+ * Compilation switch
+ * Fixed station code -> 0
+ * Boat code -> 1
+ */
+#define __TARGET__ 1
+
+/*
+ * General defines
  */
 #define SECONDS 1000
-#define START_DELAY 10*SECONDS
-#define __BOAT__ 1
-#define MOTOR_SPEED 22
+#define START_DELAY 1*SECONDS
+#define STATIONNARY_DELAY 10*SECONDS
+#define RUN_TIME 180*SECONDS
+#define LAKE_MONTJOIE 0
+#define LAKE_DES_NATIONS 1
+
+/*
+ * ESC related defines
+ */
+#define ESC_MIN_VALUE 1500
+#define ESC_MAX_VALUE 2000
+#define ESC_PIN 12
+#define PROPELLER_SPEED 22
+
+/*
+ * Sensor related defines
+ */
+#define MOISTURE_SENSOR_PIN 5
+#define RUDDER_SERVO_PIN 2
+#define TEMPERATURE_SENSOR_PIN 52
+
+/*
+ * Emergency state sensor threshold defines
+ */
 #define TEMPERATURE_THRESHOLD 50
 #define SONAR_THRESHOLD 1
 #define PROXIMITY_THRESHOLD 1
-#define STATIONNARY_DELAY 10*SECONDS
-#define RUN_TIME 180*SECONDS
-/********************************************/
-
+#define HUMIDITY_THRESHOLD "Dry"
 
 /*
- * Object instanciation
+ * First occurence of compialtion switch
  */
-#if __BOAT__>0
-  PIDController PIDController;
-  ESC esc(1500, 2000, 12);
-  Gyroscope gyroscope;
-  Moisture moistureSensor;
-  ProximitySensor proximitySensorArray;
-  RudderServo rudderServo;
-  Temperature temperatureSensor;
-  Trajectory trajectory;
-  EmergencyHandler emergencyHandler("Dry", TEMPERATURE_THRESHOLD, SONAR_THRESHOLD, PROXIMITY_THRESHOLD);
-#endif
+#if __TARGET__ == 1
 
+/*
+ * Objects instanciation
+ */
+ 
+  /*
+   * Sensor objects
+   */
+  Gyroscope gyroscope;
+  ProximitySensor proximitySensorArray;
+  ESC propeller(ESC_MIN_VALUE, ESC_MAX_VALUE, ESC_PIN);
+  Moisture moistureSensor(MOISTURE_SENSOR_PIN);
+  RudderServo rudderServo(RUDDER_SERVO_PIN);
+  Temperature temperatureSensor(TEMPERATURE_SENSOR_PIN);
+  
+  /*
+   * Logic and control classes
+   */
+  Controller controller;
+  Trajectory trajectory;
+  EmergencyHandler emergencyHandler(HUMIDITY_THRESHOLD, TEMPERATURE_THRESHOLD, SONAR_THRESHOLD, PROXIMITY_THRESHOLD);
+  
+#endif /*__TARGET__ == 1*/
+
+  /*
+   * These two devices are used both on the boat and the fixed station 
+   * so they are not bound by the compilation switch.
+   */
   GPS gps;
   XbeeReceiver xbee;
 /********************************************/ 
@@ -56,25 +106,49 @@
 /*
  * Variable definitions and initialization
  */
-#if __BOAT__>0
-  int currentEmergencyState = 0;
+#if __TARGET__ == 1
+
+  int currentEmergencyState = SAFE_STATE;
+  
+  /*
+   * Sensor varibles initialization
+   */
+  String moisture = "Unknown";
+  uint8_t temperature = 0;
+  double heading = 0.0;
   int sonar = 0;
-  ProximitySensorData proximitySensorData;
+  ProximitySensorData proximitySensorData = {0,0,0};
+
+  /*
+   * Control variables initialization
+   */
+  double theta = 0.0;
+  double rudderAngle = 0.0;
   NMEAData nextGpsData;
   NMEAData basecampGPSData;
   NMEAData gpsError;
-  String moisture= "Unknown";
-  uint8_t temperature = 0;
-  double heading = 0.0;
-  uint8_t count = 0;
-  double theta = 0.0;
-  double rudder = 0.0;
-  int servoValue = 0;
-  int escValue = 0;
-  double gpsValueLat = 0.0;
-  double gpsValueLon = 0;
+
+  /*
+   * Xbee data variables
+   */
+  double fixedStationLatitude = 0.0;
+  double fixedStationLongitude = 0.0;
+  int servoPosition = 0;
+  int propellerSpeed = 0;
+  
+  /*
+   * Timer used for control loop
+   */
   unsigned long timer1;
+  
+  /*
+   * Timer used for sensor data scheduling
+   */
   unsigned long timer2;
+  
+  /*
+   * Trajectory and pathfinder related variables
+   */
   double distanceToTarget = 0.00;
   //double destinationPoint[1][2] = { 45.379184, 71.9239 }; //test campus
   double destinationPoint[1][2] = {45.39545,71.92775};
@@ -82,11 +156,19 @@
   int gpsListCounter = 2;
   double listPointsX[10] = {0};
   double listPointsY[10] = {0};
-#endif /* __BOAT__ */
+  
+#endif /* __TARGET__ */
 
+  /*
+   * Xbee related variables
+   */
   const char GPS = 'G';
   const char Manuel = 'M';
   char mode = 'E';
+
+  /*
+   * Holds the most recent GPS data
+   */
   NMEAData currentGpsData;
 /********************************************/
 
@@ -100,130 +182,250 @@ void setup() {
   gps.enable();
   xbee.begin();
   
-#if __BOAT__>0
+#if __TARGET__ == 1
 
+  /*
+   * Initializes the I2C communication for the gyroscopse through pins 20-21
+   */
+  Wire.begin();
+  
+  /*
+   * Enabling all the sensors
+   */
   gyroscope.enable();
   moistureSensor.enable();
   rudderServo.enable();
   temperatureSensor.enable();
   //proximitySensorArray.enable();
-  
-  PIDController.enableCruisingMode();
 
-  while(currentGpsData.latitude < 4500 && currentGpsData.longitude < 7000){
-    currentGpsData = gps.getData();
+  /*
+   * Sets the control parameters to work at the cruising speed of 1.5m/s
+   */
+  controller.enableCruisingMode();
+
+  /*
+   * Make sure that the gps has a fix, then get the data
+   */
+   /*
+  while(currentGpsData.fix != true) {
+    do {
+      currentGpsData = gps.getData();
+    }
+    /*
+     * make sure that the gps coordinates are not erroneous
+     */
+     /*
+    while(!isValidGPSData(currentGpsData, LAKE_DES_NATIONS));
   }
-  Serial.print("GPS data lat & lon: ");
+  */
+  
+  /*
+   * DEBUGGING, REMOVE EVENTUALLY
+   */
+  Serial.print("GPS data latitude & longitude: ");
   Serial.print(currentGpsData.latitude);
   Serial.print(" & ");
   Serial.println(currentGpsData.longitude);
-  /*
+  
+ /* UNCOMMENT THIS EVENTUALLY
   startPoint[0][0] = ((currentGpsData.latitude-4500)/60)+45;
   startPoint[0][1] = ((currentGpsData.longitude-7100)/60)+71;
   */
+  
+  /*
+   * DEBUGGING, REMOVE EVENTUALLY
+   */
   startPoint[0][0] = 45.39554;
   startPoint[0][1] = 71.9274;
-  trajectory.getData(startPoint,destinationPoint,listPointsX,listPointsY);
+
+  /*
+   * Compute the intermediate points for the trajectory
+   */
+  trajectory.getData(startPoint,destinationPoint, listPointsX, listPointsY);
+  
+  /*
+   * DEBUGGING, REMOVE EVENTUALLY
+   */
   for (int i = 1; i < 10; i++){
     Serial.println(listPointsX[i], 4); 
     Serial.println(listPointsY[i], 4);
   }
   
+  /*
+   * Setting the next gps coordinates to what was computed by the trajectory class
+   */
   nextGpsData.longitude = listPointsY[2];
   nextGpsData.latitude = listPointsX[2];
-  
+
+  /*
+   * Make sure there is some delay before the boat starts navigating after enabling it
+   */
   delay(START_DELAY);
 
+  /*
+   * Starting both timers
+   */
   timer1 = millis();
   timer2 = millis();
- 
+
+  /*
+   * First sensor data acquisition before launching the boat autopilot
+   */
   moisture = moistureSensor.getData();
   temperature = temperatureSensor.getData();
-  rudderServo.setAngle(0);
- 
-  //currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
+  moistureSensor.printData(moisture);
+  temperatureSensor.printData(temperature);
+  /*
+   * Testing for emergency states
+   */
+  currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
   
-#endif /* __BOAT__ */
+#endif /* __TARGET__ */
 }
 
 void loop() {
-  
+  /*
+   * Continuous gps data acquisition
+   */
   currentGpsData = gps.getData();
 
-#if __BOAT__>0
+#if __TARGET__ == 1
 
+  /*
+   * Check for available xbee data and read it
+   */
   xbee.receiveData();
   mode = xbee.getMode();
-  if(mode == Manuel)
+  while(mode == Manuel)
   {
-    servoValue = (int)xbee.getServoValue();
-    escValue = (int)xbee.getEscValue();
-    Serial.println(servoValue);
-    Serial.println(escValue);
-    rudderServo.setPosition(servoValue);
-    esc.setSpeed(escValue, 0, 100);  
+    Serial.println("In manual mode");
+    /*
+     * Acquire drive and servo values from xbee
+     */
+    servoPosition = xbee.getServoValue();
+    propellerSpeed = xbee.getEscValue();
+    propellerSpeed = propellerSpeed > PROPELLER_SPEED ? PROPELLER_SPEED : propellerSpeed;  // If value exceeds maximum safe propeller speed, set it to the maximum safe propeller speed
+    
+    /*
+     * Actuate drive and servo with the values
+     */
+    rudderServo.setPosition(servoPosition);
+    propeller.setSpeed(propellerSpeed, 0, 100);
+    xbee.receiveData();
+    mode = xbee.getMode();  
   }
-  else if(mode == GPS)
+  if(mode == GPS)
   {
-    gpsValueLat = xbee.getGpsLatitude();
-    gpsValueLon = xbee.getGpsLongitude();
-    esc.setSpeed(MOTOR_SPEED, 0, 100);
+    /*
+     * Acquire fixed station gps coordinates from xbee
+     */
+    fixedStationLatitude = xbee.getGpsLatitude();
+    fixedStationLongitude = xbee.getGpsLongitude();
   }
-  /*
+  else {
+    /*
+     * Xbee is not in any communication state
+     */
+  }
+  
   currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
-  while (currentEmergencyState != 0) {
+  while (currentEmergencyState != SAFE_STATE) {
     emergencyHandler.handleEmergency(currentEmergencyState);
     Serial.println("In emergency state loop.");
     currentEmergencyState = emergencyHandler.testConditions(moisture, temperature, sonar, proximitySensorData);
   }
- */
+ 
  if (timer1 > millis())  timer1 = millis();
  if (timer2 > millis())  timer2 = millis();
     
- if (currentGpsData.latitude > 4000 && currentGpsData.latitude < 5000 && currentGpsData.longitude > 6000 && currentGpsData.longitude < 8000 && mode != Manuel) 
+ if (isValidGPSData(currentGpsData, LAKE_DES_NATIONS) && mode != Manuel) 
  {
-    if (getDistanceBetweenGPSPoints(currentGpsData, nextGpsData) < PIDController.InertialDerivationDistance && gpsListCounter < listPointsX[0]+1)
+  /*
+   * If the boat is within drift distance of target and there are other gps coordinates to visit
+   */
+    if (getDistanceBetweenGPSPoints(currentGpsData, nextGpsData) < controller.InertialDriftDistance && gpsListCounter < listPointsX[0]+1)
     {
+      /*
+       * Set next coordinates using previously computed coordinates array
+       */
       gpsListCounter = gpsListCounter + 1;
       nextGpsData.longitude = listPointsY[gpsListCounter];
       nextGpsData.latitude = listPointsX[gpsListCounter];
-      esc.setSpeed(0, 0, 100);
+      /*
+       * Stop the propeller for a bit and let the boat drift
+       */
+      propeller.setSpeed(0, 0, 100);
+      /*
+       * Wait a bit
+       */
       delay(STATIONNARY_DELAY);
     }
-    else if (getDistanceBetweenGPSPoints(currentGpsData, nextGpsData) < PIDController.InertialDerivationDistance && gpsListCounter == listPointsX[0]+1)
+    
+    else if (getDistanceBetweenGPSPoints(currentGpsData, nextGpsData) < controller.InertialDriftDistance && gpsListCounter == listPointsX[0]+1)
+    /*
+     * if the boat is within drift distance of target and this is the last gps coordinate
+     */
     { 
-      esc.setSpeed(0, 0, 100);
+      /*
+       * Stop the propeller
+       */
+      propeller.setSpeed(0, 0, 100);
     }
     else
+    /*
+     * The boat is not within drift distance
+     */
     {
-      esc.setSpeed(MOTOR_SPEED, 0, 100);
+      /*
+       * Keep the propeller going at cruising speed
+       */
+      propeller.setSpeed(PROPELLER_SPEED, 0, 100);
     }
     
     if (millis() - timer1 > TS*SECONDS)
     {
+      /*
+       * Reset the timer
+       */
       timer1 = millis();
       
+      /*
+       * Gives the heading of the boat (angle between where the nose points and the north)
+       */
       heading = gyroscope.getData(LSM_303);
-      theta = PIDController.computeTheta(currentGpsData, nextGpsData, heading);
-      gyroscope.printData(heading);
-      Serial.print("Theta: ");
-      Serial.println(theta);    
-      rudder = PIDController.controlRudder(theta);
-      rudderServo.setAngle(rudder);
+      
+      /*
+       * Compute the angle between the boat heading and the destination
+       */
+      theta = controller.computeTheta(currentGpsData, nextGpsData, heading);
+      
+      /*
+       * Compute the angle which the rudder should be set and set the rudder at that angle
+       */
+      rudderAngle = controller.controlRudder(theta);
+      rudderServo.setAngle(rudderAngle);
     }
  }
   
  if (millis() - timer2 > RUN_TIME) 
  {
-    esc.setSpeed(0,0,100);
+    propeller.setSpeed(0,0,100);
     while(true)
     {
-      servoValue = (int)xbee.getServoValue();
-      escValue = (int)xbee.getEscValue();
-      servoValue = servoValue > MOTOR_SPEED ? MOTOR_SPEED : servoValue;
-      rudderServo.setPosition(servoValue);
-      esc.setSpeed(escValue, 0, 100);
+      xbee.receiveData();
+      /*
+       * Acquire drive and servo values from xbee
+       */
+      servoPosition = xbee.getServoValue();
+      propellerSpeed = xbee.getEscValue();
+      propellerSpeed = propellerSpeed > PROPELLER_SPEED ? PROPELLER_SPEED : propellerSpeed;  // If value exceeds maximum safe propeller speed, set it to the maximum safe propeller speed
+      
+      /*
+       * Actuate drive and servo with the values
+       */
+      rudderServo.setPosition(servoPosition);
+      propeller.setSpeed(propellerSpeed, 0, 100);
     }
  }
-#endif /* __BOAT__ */
+#endif /* __TARGET__ */
 }
