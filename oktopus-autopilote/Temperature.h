@@ -14,7 +14,7 @@
 class Temperature : protected Sensor {
   
   public: 
-    Temperature();
+    Temperature(uint8_t digitalPin);
     void disable();
     void enable();
     uint8_t getData();
@@ -23,6 +23,6 @@ class Temperature : protected Sensor {
     
   private:
     dht11 DHT;
-    short _digitalPin = 52;
+    uint8_t _digitalPin;
 };
 #endif

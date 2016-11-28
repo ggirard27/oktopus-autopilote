@@ -7,8 +7,8 @@
 
 #include "Temperature.h"
 
-Temperature::Temperature(){
-  
+Temperature::Temperature(uint8_t digitalPin){
+  _digitalPin = digitalPin;
 }
 
 void Temperature::disable(){
