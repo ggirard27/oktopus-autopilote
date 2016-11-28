@@ -5,9 +5,9 @@
 // Revision: v0.0.1
 // Licence: Apache License Version 2.0, January 2004 http://www.apache.org/licenses/
 
-#include "PIDController.h"
+#include "Controller.h"
 
-PIDController::PIDController(){
+Controller::Controller(){
   for (short i = 0; i < 3; i ++) {
     theta[i] = 0;
     rudder[i] = 0;
@@ -16,7 +16,7 @@ PIDController::PIDController(){
   }
 }
 
-void PIDController::enableCruisingMode()
+void Controller::enableCruisingMode()
 {
   /* Scatmanmode
     fact_p = 2.362;
@@ -28,14 +28,14 @@ void PIDController::enableCruisingMode()
     fact_y = 0.9838;
   }
 
-void PIDController::enableApproachMode()
+void Controller::enableApproachMode()
 {
     fact_p = 17.01;
     fact_x = -15.53;
     fact_y = 0.5781;
 }
 
-double PIDController::controlRudder(double setpoint){
+double Controller::controlRudder(double setpoint){
   
   double controlled_rudder = 0;
 
@@ -63,7 +63,7 @@ double PIDController::controlRudder(double setpoint){
  
 }
 
-double PIDController::computeTheta(NMEAData current, NMEAData next, double heading)
+double Controller::computeTheta(NMEAData current, NMEAData next, double heading)
 {
     double position_angle = 0.00;
     double theta_angle = 0.00;

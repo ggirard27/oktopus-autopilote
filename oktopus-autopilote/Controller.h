@@ -6,8 +6,8 @@
 // Licence: Apache License Version 2.0, January 2004 http://www.apache.org/licenses/
 
 
-#ifndef PIDCONTROLLER_H
-#define PIDCONTROLLER_H
+#ifndef CONTROLLER_H
+#define CONTROLLER_H
 
 #include "Utils.h"
 #include <math.h>
@@ -15,11 +15,11 @@
 
 #define TS 0.1
 
-class PIDController {
+class Controller {
   
   public: 
-    static const int InertialDerivationDistance = 5;
-    PIDController();
+    static const int InertialDriftDistance = 5;
+    Controller();
     void enableApproachMode();
     void enableCruisingMode();
     double theta[50];
