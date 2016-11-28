@@ -11,7 +11,6 @@
 #include "LSM303.h"
 #include "L3G.h"
 #include "Sensor.h"
-#include <Wire.h>
 
 #define LSM_303 0
 #define L3G_20H 1

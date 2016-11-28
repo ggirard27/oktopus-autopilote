@@ -12,15 +12,12 @@ Gyroscope::Gyroscope(){
 }
 
 void Gyroscope::disable(){
-
-  Wire.end();
   if (VERBOSE) Serial.println("Gyroscope disabled.");
   _status = false;
 }
 
 void Gyroscope::enable(){
 
-  Wire.begin();
   accelerometer.init();
   accelerometer.enableDefault();
   /*
