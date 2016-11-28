@@ -7,7 +7,8 @@
 
 #include "Moisture.h"
 
-Moisture::Moisture(){
+Moisture::Moisture(int analogPin){
+  _analogPin = analogPin;
 }
 
 void Moisture::disable(){

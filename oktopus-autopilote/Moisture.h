@@ -13,7 +13,7 @@
 class Moisture : protected Sensor {
   
   public: 
-    Moisture();
+    Moisture(int analogPin);
     void disable();
     void enable();
     String getData();
@@ -22,6 +22,6 @@ class Moisture : protected Sensor {
     
   private:
     String _mapMoistureValue(int analogValue);
-    int _analogPin = 5;
+    int _analogPin;
 };
 #endif
