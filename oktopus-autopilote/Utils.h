@@ -9,6 +9,7 @@
 #define UTILS_H
 
 #include <math.h>
+#include <Arduino.h>
 
 struct ProximitySensorData {
 
@@ -45,7 +46,7 @@ static NMEAData getGPSError(NMEAData basecampGPSData) {
   const double latitudeDegreeToMeter = 111320.0, longitudeDegreeToMeter = 77816.5;
   double latitudeMinuteToMeter = latitudeDegreeToMeter/(double)60.0, longitudeMinuteToMeter = longitudeDegreeToMeter/(double)60.0;
   
-  /* GPS coordinates of Lac Montjoie basecamp station minus the invariable degree part. The degrees will not change, but minutes and seconds will, so we remove the degree part */
+  /* GPS coordinates of lake Montjoie basecamp station minus the invariable degree part. The degrees will not change, but minutes and seconds will, so we remove the degree part */
   const double latitudeReference = 74.60, longitudeReference = 64.80;
 
   double latitudeError = (latitudeReference - (basecampGPSData.latitude))*latitudeMinuteToMeter;
@@ -87,5 +88,43 @@ static double averageDataSamples(int dataSamples[], int numberOfSamples) {
   }
   average = sum/numberOfSamples;
   return average;
+}
+
+static bool isValidGPSData(NMEAData gpsData, int lake) {
+  Serial.print("GPS data latitude & longitude: ");
+  Serial.print(gpsData.latitude);
+  Serial.print(" & ");
+  Serial.println(gpsData.longitude);
+  Serial.print("lake ");
+  Serial.println(lake);
+   /*
+    * lake Montjoie -> 0
+    * lake des Nations -> 1
+    */
+   if (lake == 0) {
+      /*
+       * These coordinates are for lake Montjoie. They represent outer limits. The approximations used for 
+       * distance calculations are based on the assumption that we are somewhat within these coordinates.
+       */
+      if(gpsData.latitude > 7212 || gpsData.latitude < 7107){
+        return false;
+      }
+      if(gpsData.longitude > 4543 || gpsData.latitude < 4539){
+        return false;
+      }
+   }
+   else if (lake == 1) {
+      if(gpsData.latitude > 7194 || gpsData.latitude < 7192){
+        return false;
+      }
+      if(gpsData.longitude > 4540 || gpsData.latitude < 4539){
+        return false;
+      }
+   }
+   else {
+    return false;
+    Serial.println("Invalid lake selected.");
+   }
+  return true;
 }
 #endif
