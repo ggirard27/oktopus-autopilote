@@ -7,7 +7,8 @@
 
 #include "RudderServo.h"
 
-RudderServo::RudderServo(){
+RudderServo::RudderServo(uint8_t digitalPin){
+  _digitalPin = digitalPin;
 }
 
 void RudderServo::disable(){

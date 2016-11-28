@@ -14,7 +14,7 @@
 class RudderServo : protected Sensor {
   
   public: 
-    RudderServo();
+    RudderServo(uint8_t digitalPin);
     void disable();
     void enable();
     double getData();
@@ -28,6 +28,6 @@ class RudderServo : protected Sensor {
     double _mapRudderServoAngleToPosition(double angle);
     Servo servo;
     double _position;
-    uint8_t _digitalPin = 2;
+    uint8_t _digitalPin;
 };
 #endif
