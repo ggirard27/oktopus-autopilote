@@ -119,6 +119,9 @@
   int sonar = 0;
   ProximitySensorData proximitySensorData = {0,0,0};
 
+  int prox1(0);
+  int prox2(0);
+  int prox3(0);
   /*
    * Control variables initialization
    */
@@ -196,13 +199,15 @@ void setup() {
   moistureSensor.enable();
   rudderServo.enable();
   temperatureSensor.enable();
-  //proximitySensorArray.enable();
+  proximitySensorArray.enable();
 
   /*
    * Sets the control parameters to work at the cruising speed of 1.5m/s
    */
   controller.enableCruisingMode();
-
+  prox1 = proximitySensorData.sensor1;
+  prox2 = proximitySensorData.sensor2;
+  prox3 = proximitySensorData.sensor3;
   /*
    * Make sure that the gps has a fix, then get the data
    */
@@ -354,6 +359,7 @@ void loop() {
       /*
        * Stop the propeller for a bit and let the boat drift
        */
+       
       propeller.setSpeed(0, 0, 100);
       /*
        * Wait a bit
@@ -379,7 +385,16 @@ void loop() {
       /*
        * Keep the propeller going at cruising speed
        */
-      propeller.setSpeed(PROPELLER_SPEED, 0, 100);
+      if(proximitySensorData.acknowledgeSensor1 && !proximitySensorData.acknowledgeSensor2 && proximitySensorData.acknowledgeSensor3){
+          propeller.setSpeed(0, 0, 100);
+      } 
+      else if(proximitySensorData.acknowledgeSensor1 && proximitySensorData.acknowledgeSensor2 && proximitySensorData.acknowledgeSensor3)
+      {
+          propeller.setSpeed(0, 0, 100);
+      } 
+      else{
+        propeller.setSpeed(PROPELLER_SPEED, 0, 100);
+      }
     }
     
     if (millis() - timer1 > TS*SECONDS)
@@ -403,7 +418,26 @@ void loop() {
        * Compute the angle which the rudder should be set and set the rudder at that angle
        */
       rudderAngle = controller.controlRudder(theta);
-      rudderServo.setAngle(rudderAngle);
+    if(proximitySensorData.acknowledgeSensor1 && !proximitySensorData.acknowledgeSensor2 && !proximitySensorData.acknowledgeSensor3)
+    {
+      rudderServo.setAngle(-38);
+    }
+    else if(proximitySensorData.acknowledgeSensor1 && proximitySensorData.acknowledgeSensor2 && !proximitySensorData.acknowledgeSensor3)
+    {
+        rudderServo.setAngle(-38);
+    } 
+    else if(!proximitySensorData.acknowledgeSensor1 && !proximitySensorData.acknowledgeSensor2 && proximitySensorData.acknowledgeSensor3)
+    {
+      rudderServo.setAngle(38);
+    } 
+    else if(!proximitySensorData.acknowledgeSensor1 && proximitySensorData.acknowledgeSensor2 && proximitySensorData.acknowledgeSensor3)
+    {
+      rudderServo.setAngle(38);
+    } 
+    else 
+    {
+      rudderServo.setAngle(0);
+    }
     }
  }
   

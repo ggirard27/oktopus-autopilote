@@ -16,6 +16,10 @@ struct ProximitySensorData {
   int sensor1;
   int sensor2;
   int sensor3;
+
+  bool acknowledgeSensor1;
+  bool acknowledgeSensor2;
+  bool acknowledgeSensor3;
 };
 
 struct NMEAData {
@@ -39,7 +43,7 @@ struct NMEAData {
   short satellites;
 };
 
-static NMEAData getGPSError(NMEAData basecampGPSData) {
+static NMEAData getGPSError(double fixedStationLatitude, double fixedStationLongitude) {
 
   NMEAData errorValue;
   
@@ -49,8 +53,8 @@ static NMEAData getGPSError(NMEAData basecampGPSData) {
   /* GPS coordinates of lake Montjoie basecamp station minus the invariable degree part. The degrees will not change, but minutes and seconds will, so we remove the degree part */
   const double latitudeReference = 74.60, longitudeReference = 64.80;
 
-  double latitudeError = (latitudeReference - (basecampGPSData.latitude))*latitudeMinuteToMeter;
-  double longitudeError = (longitudeReference - (basecampGPSData.longitude))*longitudeMinuteToMeter;
+  double latitudeError = (latitudeReference - (fixedStationLatitude))*latitudeMinuteToMeter;
+  double longitudeError = (longitudeReference - (fixedStationLongitude))*longitudeMinuteToMeter;
   errorValue.latitude = latitudeError;
   errorValue.longitude = longitudeError;
   return errorValue;

@@ -21,33 +21,31 @@ class ProximitySensor : protected Sensor {
     void enable();
     ProximitySensorData getData();
     bool getStatus();
+    void tester();
     void printData(String ProximitySensor);
-    void select(int SwitchSelect);
     
   private:
-  // initialize both serial ports:
-  int En_prox1 = 30;
-  int En_prox2 = 28;
-  int En_prox3 = 26;
-
-  //initilize chain_control for enable serial port
-  const int En_ChainControl = 32;
-  const int S1_Mux = 34;
-  const int S2_Mux = 36;
-
-   //Si le serial ne fonctionne plus nous pouvons utilisé les capteurs en mode pulse:
-  /*
-  const int Pulse_prox1 = 42;
-  const int Pulse_prox2 = 44;
-  const int Pulse_prox3 = 46;
-
-  //Si le serial ne fonctionne plus nous pouvons utilisé les capteurs en mode analogique:
-
-  const int A0_prox1 = AD0;
-  const int A0_prox1 = AD1;
-  const int A0_prox1 = AD2;
-
-  */
   
+  int m_sensor;
+  ProximitySensorData m_sensorData;
+
+  // Proximity sensor switch pin
+  const int m_Switch_prox1 = 48;
+  const int m_Switch_prox2 = 50;
+  const int m_Switch_prox3 = 52;
+  
+  const int m_prox1Pin = A0;
+  const int m_prox2Pin = A2;
+  const int m_prox3Pin = A1;
+
+  int buffer_prox1[10];
+  int buffer_prox2[10];
+  int buffer_prox3[10];
+  int buffer_inc = 0;
+  
+  int buffer_prox1_value = 0;
+  int buffer_prox2_value = 0;
+  int buffer_prox3_value = 0;
 };
 #endif
+
